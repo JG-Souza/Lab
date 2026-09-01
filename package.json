@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -13,5 +13,8 @@
   "type": "commonjs",
   "dependencies": {
     "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "jest": "^30.5.1"
   }
 }

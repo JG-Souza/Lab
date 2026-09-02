@@ -5,19 +5,31 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "test": "jest"
+    "postinstall": "prisma generate",
+    "test": "jest",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:status": "prisma migrate status",
+    "prisma:studio": "prisma studio"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "pg": "^8.23.0"
   },
   "devDependencies": {
     "jest": "^30.5.1",
-    "prisma": "^8.0.0-rc.12"
+    "prisma": "^7.10.0"
+  },
+  "allowScripts": {
+    "@prisma/engines@7.10.0": true,
+    "prisma@7.10.0": true
   }
 }

@@ -1,7 +1,5 @@
 const express = require('express');
 const { prisma } = require('./src/prisma/db');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/users.routes');
 const app = express()

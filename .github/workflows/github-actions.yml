@@ -1,0 +1,43 @@
+name: First pipeline
+
+on: [push]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    services: # Sobe container docker auxiliar
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: lab_test
+        ports:
+          - 5432:5432
+        options: >- # Só libera os próximos steps após estar tudo ok.
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/lab_test
+      JWT_SECRET: ci-test-secret
+
+    steps:
+      - uses: actions/checkout@v5 # Clona o repo dentro da VM
+
+      - uses: actions/setup-node@v4 # Instala node na versão especificada
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instala dependências
+        run: npm ci
+
+      - name: Aplica migrations # O container postgres sobe vazio, isso é pra criar o schema
+        run: npm run prisma:deploy
+
+      - name: Testes de login
+        run: npm test

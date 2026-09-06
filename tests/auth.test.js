@@ -1,5 +1,18 @@
 // Teste de integração
 
+beforeAll(async () => {
+    await prisma.user.create({
+        data: {
+            email: 'admin@example.com',
+            password: await bcrypt.hash('admin', 10),
+        }
+    });
+});
+
+afterAll(async () => {
+    await prisma.$disconnect();
+});
+
 const loginService = require('../services/auth.service');
 
 describe('login', () => {

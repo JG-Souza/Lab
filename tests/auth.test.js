@@ -1,6 +1,6 @@
 // Teste de integração
 const loginService = require('../services/auth.service');
-const prisma = require('../prisma');
+const { prisma } = require('../src/prisma/db');
 const bcrypt = require('bcrypt');
 
 beforeAll(async () => {
@@ -13,6 +13,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+    await prisma.user.deleteMany({ where: { email: 'teste@example.com' } });
     await prisma.$disconnect();
 });
 

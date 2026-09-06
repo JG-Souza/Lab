@@ -1,4 +1,7 @@
 // Teste de integração
+const loginService = require('../services/auth.service');
+const prisma = require('../prisma');
+const bcrypt = require('bcrypt');
 
 beforeAll(async () => {
     await prisma.user.create({
@@ -12,8 +15,6 @@ beforeAll(async () => {
 afterAll(async () => {
     await prisma.$disconnect();
 });
-
-const loginService = require('../services/auth.service');
 
 describe('login', () => {
     test('login com email e senha válidos', async () => {

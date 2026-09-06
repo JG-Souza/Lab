@@ -2,9 +2,9 @@
   "name": "lab",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node src/server.js",
     "postinstall": "prisma generate",
     "test": "jest",
     "prisma:generate": "prisma generate",

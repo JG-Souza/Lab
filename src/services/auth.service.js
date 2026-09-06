@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { prisma } = require('../src/prisma/db');
+const { prisma } = require('../db');
 
 const SALT_ROUNDS = 10;
 

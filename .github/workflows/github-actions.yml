@@ -30,7 +30,7 @@ jobs:
 
       - uses: actions/setup-node@v4 # Instala node na versão especificada
         with:
-          node-version: 22
+          node-version-file: .nvmrc # Mesma versão do Dockerfile e do dev local
           cache: npm
 
       - name: Instala dependências

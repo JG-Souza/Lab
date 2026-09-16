@@ -10,7 +10,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/app
       JWT_SECRET: ${JWT_SECRET:?} # Se não existir ou estiver vazia, o compose não sobe.
     command: sh -c "npx prisma migrate deploy && node src/server.js"
 

@@ -1,31 +1,29 @@
-# Estágio 1: build
-FROM node:24.19.0-alpine AS builder
-
+# Estágio base
+FROM node:24.19.0-alpine AS base
 WORKDIR /app
-
 COPY package*.json prisma.config.js ./
 COPY prisma ./prisma
-
 RUN npm ci
-
 COPY src ./src
+COPY tests ./tests
 
-# Estágio 2: produção
-FROM node:24.19.0-alpine
+# Estágio de teste
+FROM base AS test
+ENV NODE_ENV=test
+CMD ["npm", "test"]
 
-# Define uma variável de ambiente dentro do container, é uma convenção.
-ENV NODE_ENV=production
 
+# Estágio de produção
+FROM node:24.19.0-alpine AS production
 WORKDIR /app
-
+ENV NODE_ENV=production
 COPY package*.json prisma.config.js ./
 COPY prisma ./prisma
 
 # Limpa o cache junto
 RUN npm ci --omit=dev && npm cache clean --force
 
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/src ./src
+COPY src ./src
 
 EXPOSE 3000
 

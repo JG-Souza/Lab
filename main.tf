@@ -19,6 +19,7 @@ resource "aws_vpc" "main" {
 }
 
 resource "aws_internet_gateway" "igw" {
+    vpc_id = aws_vpc.main.id
 
     tags = {
         Name = "main"
@@ -27,7 +28,7 @@ resource "aws_internet_gateway" "igw" {
 
 resource "aws_subnet" "public_subnet" {
     vpc_id = aws_vpc.main.id
-    cidr_block = "10.1.0.0/16"
+    cidr_block = "10.1.1.0/16"
     availability_zone = data.aws_availability_zones.disponiveis.names[0]
 
     tags = {
@@ -37,7 +38,7 @@ resource "aws_subnet" "public_subnet" {
 
 resource "aws_subnet" "private_subnet_1" {
     vpc_id = aws_vpc.main.id
-    cidr_block = "10.1.0.0/16"
+    cidr_block = "10.1.2.0/16"
     availability_zone = data.aws_availability_zones.disponiveis.names[1]
 
     tags = {
@@ -47,7 +48,7 @@ resource "aws_subnet" "private_subnet_1" {
 
 resource "aws_subnet" "private_subnet_2" {
     vpc_id = aws_vpc.main.id
-    cidr_block = "10.1.0.0/16"
+    cidr_block = "10.1.3.0/16"
     availability_zone = data.aws_availability_zones.disponiveis.names[2]
 
     tags = {
@@ -71,7 +72,7 @@ resource "aws_route_table" "public_rt" {
 
 resource "aws_route_table_association" "public_assoc" {
     subnet_id = aws_subnet.public_subnet.id
-    route_table_id = aws_route_table.main.id
+    route_table_id = aws_route_table.public_rt.id
 }
 
 
@@ -136,7 +137,7 @@ resource "aws_iam_role" "ec2_role" {
     name = "lab-ec2-execution-role"
 
     # Políticas de confiança. Comunica à AWS que instancias EC2 podem assumir essa Role.
-    assume_role_policy = jsondecode({
+    assume_role_policy = jsonencode({
         Version = "2012-10-17"
         Statement = [
             {
@@ -215,7 +216,7 @@ resource "aws_db_subnet_group" "rds_subnet_group" {
     description = "Grupo de subnets privadas para o banco de dados RDS"
     subnet_ids = [
         aws_subnet.private_subnet_1.id, 
-        aws_subnet.private_subnet_2
+        aws_subnet.private_subnet_2.id
     ]
 
     tags = {
@@ -224,7 +225,7 @@ resource "aws_db_subnet_group" "rds_subnet_group" {
 }
 
 resource "aws_db_instance" "postgres" {
-    allocated_storage =  = 20 # É o tamanho do disco rígido, este é o mínimo da AWS
+    allocated_storage = 20 # É o tamanho do disco rígido, este é o mínimo da AWS
     engine = "postgres"
     engine_version = "15"
     instance_class = "db.t3.micro" # É o tamanho e o porte do servidor virtual que vai rodar o motor do DB.

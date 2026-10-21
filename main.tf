@@ -28,7 +28,7 @@ resource "aws_internet_gateway" "igw" {
 
 resource "aws_subnet" "public_subnet" {
     vpc_id = aws_vpc.main.id
-    cidr_block = "10.1.1.0/16"
+    cidr_block = "10.1.1.0/24"
     availability_zone = data.aws_availability_zones.disponiveis.names[0]
 
     tags = {
@@ -38,7 +38,7 @@ resource "aws_subnet" "public_subnet" {
 
 resource "aws_subnet" "private_subnet_1" {
     vpc_id = aws_vpc.main.id
-    cidr_block = "10.1.2.0/16"
+    cidr_block = "10.1.2.0/24"
     availability_zone = data.aws_availability_zones.disponiveis.names[1]
 
     tags = {
@@ -48,7 +48,7 @@ resource "aws_subnet" "private_subnet_1" {
 
 resource "aws_subnet" "private_subnet_2" {
     vpc_id = aws_vpc.main.id
-    cidr_block = "10.1.3.0/16"
+    cidr_block = "10.1.3.0/24"
     availability_zone = data.aws_availability_zones.disponiveis.names[2]
 
     tags = {

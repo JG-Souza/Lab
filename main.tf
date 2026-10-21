@@ -239,3 +239,30 @@ resource "aws_db_instance" "postgres" {
     # Amarrando ao SG
     vpc_security_group_ids = [aws_security_group.rds_sg.id]
 }
+
+# Computação
+
+resource "aws_instance" "app_server" {
+    ami = "ami-0c7217cdde317cfec" # Código do SO que vai rodar na máquina. É regional, tentar usar esse código em região diferente não funcionaria.
+    instance_type = var.tipo_instancia
+
+    vpc_security_group_ids = [aws_security_group.ec2_sg.id]
+    subnet_id = aws_subnet.public_subnet.id
+    iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
+
+
+    tags = {
+        Name = "LabAPI-Server" # Nome que vai aparecer no painel da AWS
+    }
+}
+
+resource "aws_eip" "api_eip" {
+    instance = aws_instance.app_server.id # Associa o IP estático diretamente à EC2
+    domain = "vpc" # Define que o IP pertence à VPC
+
+    depends_on = [ aws_internet_gateway.igw ]
+
+    tags = {
+    Name = "LabAPI-EIP"
+  }
+}

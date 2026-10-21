@@ -207,3 +207,35 @@ resource "aws_ecr_lifecycle_policy" "limpeza_imagens_antigas" {
         ]
     })
 }
+
+# Dados
+
+resource "aws_db_subnet_group" "rds_subnet_group" {
+    name = "lab-rds-subnet-group"
+    description = "Grupo de subnets privadas para o banco de dados RDS"
+    subnet_ids = [
+        aws_subnet.private_subnet_1.id, 
+        aws_subnet.private_subnet_2
+    ]
+
+    tags = {
+    Name = "lab-rds-subnet-group"
+  }
+}
+
+resource "aws_db_instance" "postgres" {
+    allocated_storage =  = 20 # É o tamanho do disco rígido, este é o mínimo da AWS
+    engine = "postgres"
+    engine_version = "15"
+    instance_class = "db.t3.micro" # É o tamanho e o porte do servidor virtual que vai rodar o motor do DB.
+    db_name = "app_db"
+    username = "postgres"
+    password = "postgres"
+    skip_final_snapshot = true # Permite dar terraform destroy sem travar
+
+    # Amarrando ao Subnet Group
+    db_subnet_group_name = aws_db_subnet_group.rds_subnet_group.name
+
+    # Amarrando ao SG
+    vpc_security_group_ids = [aws_security_group.rds_sg.id]
+}

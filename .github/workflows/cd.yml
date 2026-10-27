@@ -1,0 +1,47 @@
+name: Deploy API
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push Image to ECR
+      # No `docker tag`, o primeiro trecho representa o nome a tag da imagem local que foi gerada no runner durante o `docker build`. Enquanto o segundo trecho é o formato exigido pelo Docker. A ideia é aplicar a tag oficial da AWS na imagem local.
+        run: |
+          docker build -t lab-api-auth .
+          docker tag lab-api-auth:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/lab-api-auth:latest
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/lab-api-auth:latest
+
+      - name: Deploy e Migration via SSM
+      # Por padrão o output é JSON, por isso --output text
+        run: |
+          INSTANCE_ID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=LabAPI-Server" "Name=instance-state-name,Values=running" \
+            --query "Reservations[0].Instances[0].InstanceId" --output text)
+
+          aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --parameters commands='[
+              "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin '${{ secrets.AWS_ACCOUNT_ID }}'.dkr.ecr.us-east-1.amazonaws.com",
+              "docker pull '${{ secrets.AWS_ACCOUNT_ID }}'.dkr.ecr.us-east-1.amazonaws.com/lab-api-auth:latest",
+              "docker run --rm -e DATABASE_URL=\"'${{ secrets.DATABASE_URL }}\"' '${{ secrets.AWS_ACCOUNT_ID }}'.dkr.ecr.us-east-1.amazonaws.com/lab-api-auth:latest npx prisma migrate deploy",
+              "docker stop api-node || true",
+              "docker rm api-node || true",
+              "docker run -d --name api-node -p 80:3000 -e DATABASE_URL=\"'${{ secrets.DATABASE_URL }}\"' '${{ secrets.AWS_ACCOUNT_ID }}'.dkr.ecr.us-east-1.amazonaws.com/lab-api-auth:latest"
+              ]'

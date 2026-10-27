@@ -11,3 +11,21 @@ variable "tipo_instancia" {
     description = "Define qual o tamanho da EC2"
     default = "t3.micro"
 }
+
+variable "db_name" {
+  type        = string
+  description = "Nome do banco de dados PostgreSQL"
+  default     = "lab_api_db"
+}
+
+variable "db_username" {
+  type        = string
+  description = "Usuário mestre do RDS"
+  default     = "postgres"
+}
+
+variable "db_password" {
+  type        = string
+  description = "Senha mestre do RDS"
+  sensitive   = true # Impede que a senha apareça em texto puro nos logs do terraform apply
+}

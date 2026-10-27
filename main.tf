@@ -11,7 +11,7 @@ data "aws_availability_zones" "disponiveis" {
 # Rede
 
 resource "aws_vpc" "main" {
-    cidr_block = "10.1.0.0/16" # O que é isso?
+    cidr_block = "10.1.0.0/16"
 
     tags = {
         Name = "main"
@@ -229,9 +229,9 @@ resource "aws_db_instance" "postgres" {
     engine = "postgres"
     engine_version = "15"
     instance_class = "db.t3.micro" # É o tamanho e o porte do servidor virtual que vai rodar o motor do DB.
-    db_name = "app_db"
-    username = "postgres"
-    password = "postgres"
+    db_name = var.db_name
+    username = var.db_username
+    password = var.db_password
     skip_final_snapshot = true # Permite dar terraform destroy sem travar
 
     # Amarrando ao Subnet Group
@@ -266,4 +266,11 @@ resource "aws_eip" "api_eip" {
     tags = {
     Name = "LabAPI-EIP"
   }
+}
+
+# Dinamização da URL do RDS
+resource "aws_ssm_parameter" "db_url" {
+    name = "/lab-api/DATABASE_URL"
+    type = "SecureString" # Criptografado com chave AWS KMS
+    value = "postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${var.db_name}?schema=public"
 }

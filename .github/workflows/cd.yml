@@ -38,10 +38,11 @@ jobs:
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
             --parameters commands='[
+              "DATABASE_URL=$(aws ssm get-parameter --name \"/lab-api/DATABASE_URL\" --with-decryption --query \"Parameter.Value\" --output text)",
               "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin '${{ secrets.AWS_ACCOUNT_ID }}'.dkr.ecr.us-east-1.amazonaws.com",
               "docker pull '${{ secrets.AWS_ACCOUNT_ID }}'.dkr.ecr.us-east-1.amazonaws.com/lab-api-auth:latest",
-              "docker run --rm -e DATABASE_URL=\"'${{ secrets.DATABASE_URL }}\"' '${{ secrets.AWS_ACCOUNT_ID }}'.dkr.ecr.us-east-1.amazonaws.com/lab-api-auth:latest npx prisma migrate deploy",
+              "docker run --rm -e DATABASE_URL=\"$DATABASE_URL\" '${{ secrets.AWS_ACCOUNT_ID }}'.dkr.ecr.us-east-1.amazonaws.com/lab-api-auth:latest npx prisma migrate deploy",
               "docker stop api-node || true",
               "docker rm api-node || true",
-              "docker run -d --name api-node -p 80:3000 -e DATABASE_URL=\"'${{ secrets.DATABASE_URL }}\"' '${{ secrets.AWS_ACCOUNT_ID }}'.dkr.ecr.us-east-1.amazonaws.com/lab-api-auth:latest"
+              "docker run -d --name api-node -p 80:3000 -e DATABASE_URL=\"$DATABASE_URL\" '${{ secrets.AWS_ACCOUNT_ID }}'.dkr.ecr.us-east-1.amazonaws.com/lab-api-auth:latest"
               ]'

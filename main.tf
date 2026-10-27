@@ -80,7 +80,7 @@ resource "aws_route_table_association" "public_assoc" {
 resource "aws_security_group" "ec2_sg" {
 
     name = "lab-ec2-sg"
-    description = "Permite tráfego Web vindo da internet"
+    description = "Permite trafego Web vindo da internet"
     vpc_id = aws_vpc.main.id
 
     # Regras de Entrada (Quem pode ENTRAR na rede/maquina)
